@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+
+##
+## [ Database Configuration Section ]
+##
+spring:
+
+  datasource:
+    url: jdbc:postgresql://${HOST_DB:localhost:15432}/${NAME_DB:app_sa}?autoReconnect=true
+    username: ${USER_DB:app_sa_user}
+    password: ${PASS_DB:S@-UsEr}
+    hikari:
+      maximumPoolSize: ${HIKARI_MAXIMUM_POOLSIZE:20}
+      leak-detection-threshold: ${HIKARI_LEAK_THRESHOLD:30000}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    root: ${LOG_LEVEL:info}
