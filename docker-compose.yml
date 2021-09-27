@@ -11,6 +11,9 @@ services:
       - PROFILES=default
       - HOST_DB=postgres:5432
       - LOG_LEVEL=info
+      - CRON_LOAD_SOURCE=0 0 * * * *
+      - BASE_URI=...
+      - API_KEY=...
   postgres:
     image: postgres:13.3-alpine
     environment:

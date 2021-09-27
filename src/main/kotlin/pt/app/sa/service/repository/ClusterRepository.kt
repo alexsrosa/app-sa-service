@@ -11,4 +11,5 @@ import pt.app.sa.service.model.ClusterEntity
  */
 interface ClusterRepository : JpaRepository<ClusterEntity, Long> {
 
+    fun findByName(name: String): ClusterEntity?
 }

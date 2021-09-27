@@ -11,4 +11,5 @@ import pt.app.sa.service.model.StoreEntity
  */
 interface StoreRepository : JpaRepository<StoreEntity, Long> {
 
+    fun findByName(name: String): StoreEntity?
 }

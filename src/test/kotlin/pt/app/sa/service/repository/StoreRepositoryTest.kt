@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.test.context.ActiveProfiles
 import pt.app.sa.service.model.ClusterEntity
 import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.model.StoreEntity
@@ -13,6 +14,7 @@ import pt.app.sa.service.model.StoreEntity
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
  * @since 25/09/2021 16:19
  */
+@ActiveProfiles("test")
 @DataJpaTest
 class StoreRepositoryTest @Autowired constructor(
     val clusterRepository: ClusterRepository,

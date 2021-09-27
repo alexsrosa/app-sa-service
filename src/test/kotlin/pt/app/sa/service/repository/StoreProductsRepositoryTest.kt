@@ -4,26 +4,28 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.test.context.ActiveProfiles
 import pt.app.sa.service.model.ClusterEntity
-import pt.app.sa.service.model.ProductEntity
 import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.model.StoreEntity
+import pt.app.sa.service.model.StoreProductEntity
 
 /**
  *
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
  * @since 25/09/2021 16:19
  */
+@ActiveProfiles("test")
 @DataJpaTest
-class ProductRepositoryTest @Autowired constructor(
+class StoreProductsRepositoryTest @Autowired constructor(
     val clusterRepository: ClusterRepository,
     val regionRepository: RegionRepository,
     val storeRepository: StoreRepository,
-    val productRepository: ProductRepository
+    val storeProductRepository: StoreProductRepository
 ) {
 
     @Test
-    fun `When create new product then save on database`() {
+    fun `When create new store product then save on database`() {
 
         val cluster = ClusterEntity("testClusterName")
         val savedCluster = clusterRepository.save(cluster)
@@ -31,15 +33,15 @@ class ProductRepositoryTest @Autowired constructor(
         val savedRegion = regionRepository.save(regionEntity)
         val storeEntity = StoreEntity("storeName", "theme", savedRegion)
         val savedStore = storeRepository.save(storeEntity)
-        val productEntity = ProductEntity("product", "sa", savedStore)
-        val savedProduct = productRepository.save(productEntity)
+        val productEntity = StoreProductEntity("product", "sa", savedStore)
+        val savedProduct = storeProductRepository.save(productEntity)
 
-        val found = savedProduct.id?.let { productRepository.findById(it) }
+        val found = savedProduct.id?.let { storeProductRepository.findById(it) }
         assertThat(found?.get() ?: "").isEqualTo(savedProduct)
     }
 
     @Test
-    fun `When findById on product then return product`() {
+    fun `When findById on store product then return product`() {
 
         val cluster = ClusterEntity("testClusterName")
         val savedCluster = clusterRepository.save(cluster)
@@ -47,10 +49,10 @@ class ProductRepositoryTest @Autowired constructor(
         val savedRegion = regionRepository.save(regionEntity)
         val storeEntity = StoreEntity("storeName", "theme", savedRegion)
         val savedStore = storeRepository.save(storeEntity)
-        val productEntity = ProductEntity("product", "sa", savedStore)
-        val savedProduct = productRepository.save(productEntity)
+        val productEntity = StoreProductEntity("product", "sa", savedStore)
+        val savedProduct = storeProductRepository.save(productEntity)
 
-        val found = savedProduct.id?.let { productRepository.findById(it) }
+        val found = savedProduct.id?.let { storeProductRepository.findById(it) }
         val foundProduct = found?.get() ?: productEntity
         assertThat(productEntity.product).isEqualTo(foundProduct.product)
         assertThat(productEntity.season).isEqualTo(foundProduct.season)
@@ -58,7 +60,7 @@ class ProductRepositoryTest @Autowired constructor(
     }
 
     @Test
-    fun `When findAll on products then return all products`() {
+    fun `When findAll on store products then return all products`() {
 
         val cluster = ClusterEntity("testClusterName")
         val savedCluster = clusterRepository.save(cluster)
@@ -70,12 +72,12 @@ class ProductRepositoryTest @Autowired constructor(
         var index = 0
         val total = 1000
         while (index < total) {
-            val productEntity = ProductEntity("product $index", "sa", savedStore)
-            productRepository.save(productEntity)
+            val productEntity = StoreProductEntity("product $index", "sa", savedStore)
+            storeProductRepository.save(productEntity)
             index++
         }
 
-        val findAll = productRepository.findAll()
+        val findAll = storeProductRepository.findAll()
 
         assertThat(findAll.size).isEqualTo(total)
     }

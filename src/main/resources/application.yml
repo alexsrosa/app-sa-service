@@ -15,10 +15,33 @@ spring:
       maximumPoolSize: ${HIKARI_MAXIMUM_POOLSIZE:20}
       leak-detection-threshold: ${HIKARI_LEAK_THRESHOLD:30000}
       idle-timeout: ${HIKARI_IDLE_TIMEOUT:30000}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
   level:
     root: ${LOG_LEVEL:info}
+
+##
+## [ Properties App Section ]
+##
+schedule:
+  loadAndUpdateSourceSchedule:
+    cron: ${CRON_LOAD_SOURCE:0 0 * * * *}
+
+externalDataLoad:
+  baseUri: ${BASE_URI:...}
+  apiKey: ${API_KEY:...}
+  endpoints:
+    clusters: /clusters
+    regions: /regions
+    stores: /stores
+    storeProducts: /stores/products
+    products: /product-data.csv
+
