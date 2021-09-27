@@ -11,4 +11,5 @@ import pt.app.sa.service.model.ProductEntity
  */
 interface ProductRepository : JpaRepository<ProductEntity, Long> {
 
+    fun findBySeasonAndSku(session: String, sku: String): ProductEntity?
 }

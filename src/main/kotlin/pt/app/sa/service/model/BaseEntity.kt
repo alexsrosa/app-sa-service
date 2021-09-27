@@ -1,9 +1,7 @@
 package pt.app.sa.service.model
 
 import java.time.LocalDateTime
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.MappedSuperclass
+import javax.persistence.*
 
 /**
  * Base class for entities with commonly used attributes.
@@ -12,9 +10,15 @@ import javax.persistence.MappedSuperclass
  * @since 25/09/2021 17:28
  */
 @MappedSuperclass
-open class BaseEntity() {
-    @Id @GeneratedValue
+open class BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
     var updatedAt: LocalDateTime = LocalDateTime.now()
     var cratedAt: LocalDateTime = LocalDateTime.now()
+
+    @PreUpdate
+    fun save() {
+        updatedAt = LocalDateTime.now()
+    }
 }

@@ -11,4 +11,5 @@ import pt.app.sa.service.model.RegionEntity
  */
 interface RegionRepository : JpaRepository<RegionEntity, Long> {
 
+    fun findByName(name: String): RegionEntity?
 }

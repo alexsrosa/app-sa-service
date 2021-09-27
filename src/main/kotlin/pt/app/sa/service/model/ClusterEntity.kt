@@ -1,6 +1,7 @@
 package pt.app.sa.service.model
 
 import javax.persistence.Entity
+import javax.persistence.Index
 import javax.persistence.Table
 
 /**
@@ -10,7 +11,12 @@ import javax.persistence.Table
  * @since 25/09/2021 15:29
  */
 @Entity
-@Table(name = "clusters")
+@Table(
+    name = "clusters",
+    indexes = [Index(name = "index_clusters_name_unique", columnList = "name", unique = true)]
+)
 class ClusterEntity(
     var name: String
-) : BaseEntity()
+) : BaseEntity() {
+    override fun toString(): String = name
+}
