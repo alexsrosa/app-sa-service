@@ -1,6 +1,25 @@
 # Application SA. Service
 
+## Endpoints
 
+### `GET /filters` 
+
+Lists all the available fields for which users can use to filter for Stores
+
+**Response example:**
+````json
+[
+  "season",
+  "cluster",
+  "region",
+  "regionType",
+  "productModel",
+  "productSize",
+  "sku",
+  "storeName",
+  "storeTheme"
+]
+````
 
 ## Technologies
 

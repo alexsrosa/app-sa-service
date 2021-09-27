@@ -30,9 +30,7 @@ class ClusterService(
     }
 
     @Cacheable(cacheNames = ["clusterExistsByName"], key = "#name")
-    fun exists(name: String): Boolean {
-        return findByName(name) != null
-    }
+    fun exists(name: String) = findByName(name) != null
 
     @Cacheable(cacheNames = ["clusterFindByName"], key = "#name")
     fun findByName(name: String): ClusterEntity? {

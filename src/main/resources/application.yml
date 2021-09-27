@@ -45,3 +45,6 @@ externalDataLoad:
     storeProducts: /stores/products
     products: /product-data.csv
 
+rest:
+  filters: season, cluster, region, regionType, productModel, productSize, sku, storeName, storeTheme
+
