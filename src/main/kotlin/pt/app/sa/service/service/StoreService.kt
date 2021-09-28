@@ -2,9 +2,15 @@ package pt.app.sa.service.service
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import pt.app.sa.service.controller.dto.FilterData
+import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.model.StoreEntity
 import pt.app.sa.service.repository.StoreRepository
+import pt.app.sa.service.repository.specification.RegionSpecification
+import pt.app.sa.service.repository.specification.StoreSpecification
 import pt.app.sa.service.schedule.data.StoreData
 
 /**
@@ -47,6 +53,10 @@ class StoreService(
 
     fun findAll(): List<StoreEntity> {
         return storeRepository.findAll()
+    }
+
+    fun findAll(filters: List<FilterData>, pageable: Pageable): Page<StoreEntity> {
+        return storeRepository.findAll(StoreSpecification.filter(filters), pageable)
     }
 
     private fun isChangedSomething(storeEntity: StoreEntity, storeData: StoreData): Boolean {

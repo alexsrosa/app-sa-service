@@ -2,9 +2,15 @@ package pt.app.sa.service.service
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.model.ProductEntity
+import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.repository.ProductRepository
+import pt.app.sa.service.repository.specification.ProductSpecification
+import pt.app.sa.service.repository.specification.RegionSpecification
 import pt.app.sa.service.schedule.data.ProductData
 import java.util.*
 
@@ -52,6 +58,10 @@ class ProductService(
         return productRepository.findBySeasonAndSku(season, sku)
     }
 
+    fun findAll(filters: List<FilterData>, pageable: Pageable): Page<ProductEntity> {
+        return productRepository.findAll(ProductSpecification.filter(filters), pageable)
+    }
+
     private fun isChangedSomething(productEntity: ProductEntity, productData: ProductData): Boolean {
         return !(productEntity.model != productData.model
                 || productEntity.size != productData.size
@@ -59,5 +69,4 @@ class ProductService(
                 || productEntity.ean != productData.ean.toLong()
                 || productEntity.description != productData.description)
     }
-
 }

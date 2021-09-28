@@ -1,9 +1,11 @@
 package pt.app.sa.service.controller
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import pt.app.sa.service.controller.dto.FiltersData
+import pt.app.sa.service.controller.dto.FiltersEnum
 import pt.app.sa.service.usecase.FiltersUseCase
+import javax.websocket.server.PathParam
 
 /**
  *
@@ -17,5 +19,14 @@ class FiltersController(
 ) {
 
     @GetMapping
-    fun getAllFilters() = filtersUseCase.getAllFilters()
+    fun getAllFilters() = FiltersEnum.values()
+
+    @PostMapping("/{filterId}")
+    fun filterSources(
+        @PathVariable filterId: String,
+        @RequestBody(required = false) filtersData: FiltersData?,
+        @PathParam(value = "page") page: Int? = 0
+    ): ResponseEntity<Any> {
+        return ResponseEntity.ok(filtersUseCase.filterSources(filterId, filtersData, page))
+    }
 }

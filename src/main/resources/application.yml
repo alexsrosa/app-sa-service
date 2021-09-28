@@ -22,6 +22,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
@@ -44,7 +45,4 @@ externalDataLoad:
     stores: /stores
     storeProducts: /stores/products
     products: /product-data.csv
-
-rest:
-  filters: season, cluster, region, regionType, productModel, productSize, sku, storeName, storeTheme
 
