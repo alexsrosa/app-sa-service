@@ -2,9 +2,13 @@ package pt.app.sa.service.service
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.model.ClusterEntity
 import pt.app.sa.service.repository.ClusterRepository
+import pt.app.sa.service.repository.specification.ClusterSpecification
 import pt.app.sa.service.schedule.data.ClusterData
 
 /**
@@ -39,5 +43,9 @@ class ClusterService(
 
     fun findAll(): List<ClusterEntity> {
         return clusterRepository.findAll()
+    }
+
+    fun findAll(filters: List<FilterData>, pageable: Pageable): Page<ClusterEntity> {
+        return clusterRepository.findAll(ClusterSpecification.filter(filters), pageable)
     }
 }
