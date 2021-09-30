@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import pt.app.sa.service.schedule.data.ClusterData
+import pt.app.sa.service.scheduler.data.ClusterData
 import pt.app.sa.service.service.ClusterService
-import pt.app.sa.service.utils.LoadByRequestWithPageType
-import pt.app.sa.service.utils.RestTemplateUtils
+import pt.app.sa.service.commons.LoadByRequestWithPageType
+import pt.app.sa.service.commons.RestTemplateUtils
 
 /**
  *
@@ -20,7 +20,7 @@ import pt.app.sa.service.utils.RestTemplateUtils
 class LoadClustersUseCase(
     val clusterService: ClusterService,
     val restTemplateUtils: RestTemplateUtils<List<ClusterData>>
-) : LoadByRequestWithPageType<List<ClusterData>> {
+) : LoadByRequestWithPageType<ClusterData> {
 
     @Value("\${externalDataLoad.baseUri}")
     lateinit var baseUri: String
@@ -28,8 +28,11 @@ class LoadClustersUseCase(
     @Value("\${externalDataLoad.endpoints.clusters}")
     lateinit var endpointCluster: String
 
-    @Value("\${externalDataLoad.endpoints.clusters.errorsAccepted:10}")
+    @Value("\${externalDataLoad.endpoints.clusters.errorsAccepted:100}")
     override var errorsAccepted: Int = 0
+
+    override var totalBatch: Int = 100
+    override var processName: String = "Cluster"
 
     override val logger: Logger = LoggerFactory.getLogger(LoadClustersUseCase::class.java)
 
@@ -39,7 +42,7 @@ class LoadClustersUseCase(
             object : ParameterizedTypeReference<List<ClusterData>>() {})
     }
 
-    override fun save(list: List<ClusterData>) {
+    override fun saveAll(list: List<ClusterData>) {
         list.forEach { cluster ->
             val saveCluster = clusterService.save(cluster)
             if (saveCluster != null) {

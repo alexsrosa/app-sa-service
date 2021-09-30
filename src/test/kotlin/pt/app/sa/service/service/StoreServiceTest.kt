@@ -12,9 +12,9 @@ import org.springframework.test.context.ActiveProfiles
 import pt.app.sa.service.repository.ClusterRepository
 import pt.app.sa.service.repository.RegionRepository
 import pt.app.sa.service.repository.StoreRepository
-import pt.app.sa.service.schedule.data.ClusterData
-import pt.app.sa.service.schedule.data.RegionData
-import pt.app.sa.service.schedule.data.StoreData
+import pt.app.sa.service.scheduler.data.ClusterData
+import pt.app.sa.service.scheduler.data.RegionData
+import pt.app.sa.service.scheduler.data.StoreData
 
 /**
  *
@@ -110,5 +110,36 @@ class StoreServiceTest @Autowired constructor(
 
         val findAll = storeService.findAll()
         assertEquals(total, findAll.size)
+    }
+
+    @Test
+    fun `When 3findByAll Then return all stores`(){
+        var init = 18076
+        val finish = 60000
+        while(init >= finish){
+            init++
+            assertEquals(init, discoverPage(init))
+        }
+    }
+
+    fun discoverPage(rangeToGus: Int): Int{
+        val nowLastPage = 18076 + 1
+        var execute = true
+        var rangeSearch = 1000
+        var pageSearch = nowLastPage + rangeSearch
+        while(execute){
+            if(pageSearch <= rangeToGus) {
+                pageSearch += rangeSearch
+            }else{
+                pageSearch -= rangeSearch
+                rangeSearch /= 2
+            }
+
+            if(rangeSearch == 1){
+                execute = false
+            }
+        }
+
+        return pageSearch
     }
 }

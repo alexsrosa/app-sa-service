@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
 import org.springframework.test.context.ActiveProfiles
 import pt.app.sa.service.repository.ClusterRepository
-import pt.app.sa.service.schedule.data.ClusterData
+import pt.app.sa.service.scheduler.data.ClusterData
 
 /**
  *

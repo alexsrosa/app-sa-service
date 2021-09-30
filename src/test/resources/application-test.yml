@@ -37,6 +37,7 @@ logging:
 ## [ Properties App Section ]
 ##
 schedule:
+  activeOnStart: false
   loadAndUpdateSourceSchedule:
     cron: "-"
 

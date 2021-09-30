@@ -1,8 +1,9 @@
-package pt.app.sa.service.utils
+package pt.app.sa.service.commons
 
 import org.slf4j.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import java.time.LocalTime
 
 /**
  *
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity
 interface LoadByRequestReceiveFileType<T, D> {
 
     val errorsAccepted: Int
+    val processName: String
     val logger: Logger
 
     fun request(): ResponseEntity<T>
@@ -19,22 +21,28 @@ interface LoadByRequestReceiveFileType<T, D> {
     fun saveAll(list: MutableList<D>)
 
     fun load() {
+        logger.info(":::: Started to load $processName ::::")
+        val startedTime: LocalTime = LocalTime.now()
         var execute = true
-        var errorsAcceptedCount = 0
+        var errorsAcceptedCount = 1
         var hasError = false
+        var messageErr = ""
 
         while (execute) {
             try {
                 val response = request()
                 val file: T? = response.body
                 val convertedFile = file?.let { convert(it) }
-                convertedFile?.let { saveAll(it) }
+                convertedFile?.let {
+                    saveAll(it)
+                    logger.info("${it.size} records were processed")
+                }
 
                 if (response.statusCode != HttpStatus.OK) {
                     hasError = true
                 }
             } catch (ex: Exception) {
-                logger.error(ex.message)
+                messageErr = "Error requesting API: ${ex.message}"
                 hasError = true
             }
 
@@ -47,7 +55,10 @@ interface LoadByRequestReceiveFileType<T, D> {
 
                 errorsAcceptedCount++
                 hasError = false
+                logger.info("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
             }
         }
+
+        logger.info("#### Finished in ${TimeUtils.getTotalTime(startedTime)} seconds ####")
     }
 }

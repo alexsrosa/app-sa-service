@@ -21,6 +21,78 @@ Lists all the available fields for which users can use to filter for Stores
 ]
 ````
 
+### `POST /filters/{filter_id}?page=X` 
+
+Lists all possible remaining values that a user can select of a given filter, after using other filters
+
+**Request example:**
+`http://localhost:8080/filters/STORE_NAME?page=0`
+````json
+{
+  "filters": [
+    {
+      "id": "REGION",
+      "values": [ "North EU", "South EU"]
+    },
+    {
+      "id": "STORE_NAME",
+      "values": [ "A Wednesday store", "A Sunday store"]
+    },
+    {
+      "id": "STORE_THEME",
+      "values": [ "What an a shaky Store!"]
+    }
+  ]
+}
+````
+**Response example:**
+````json
+[
+  {
+    "name": "A Sunday store",
+    "theme": "What an a shaky Store!",
+    "region": "North EU"
+  }
+]
+````
+
+### `POST /stores?page=X`
+
+Filters all stores matching the given filters
+
+**Request example:**
+`http://localhost:8080/stores?page=0`
+````json
+{
+  "filters": [
+    {
+      "id": "Season",
+      "values": ["S20"]
+    },
+    {
+      "id": "Region",
+      "values": ["North EU"]
+    }
+  ]
+}
+````
+**Response example:**
+````json
+[
+  {
+    "name": "A Sunday store",
+    "theme": "What an a shaky Store!",
+    "region": "North EU"
+  },
+  {
+    "name": "A color store",
+    "theme": "What an a nightly Store!",
+    "region": "North EU"
+  }
+]
+````
+
+
 ## Technologies
 
 - Kotlin

@@ -1,4 +1,4 @@
-package pt.app.sa.service.schedule.data
+package pt.app.sa.service.scheduler.data
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
  * @since 25/09/2021 18:06
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ClusterData(
-    var name: String
+data class RegionData(
+    var name: String,
+    var type: String,
+    var clusters: String
 )

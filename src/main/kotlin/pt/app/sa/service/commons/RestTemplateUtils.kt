@@ -1,4 +1,4 @@
-package pt.app.sa.service.utils
+package pt.app.sa.service.commons
 
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod

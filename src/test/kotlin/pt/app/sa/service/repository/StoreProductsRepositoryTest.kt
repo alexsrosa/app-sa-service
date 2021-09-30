@@ -9,6 +9,7 @@ import pt.app.sa.service.model.ClusterEntity
 import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.model.StoreEntity
 import pt.app.sa.service.model.StoreProductEntity
+import pt.app.sa.service.service.StoreProductService
 
 /**
  *

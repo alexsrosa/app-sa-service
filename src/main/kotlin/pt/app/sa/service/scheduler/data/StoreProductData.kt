@@ -1,4 +1,4 @@
-package pt.app.sa.service.schedule.data
+package pt.app.sa.service.scheduler.data
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

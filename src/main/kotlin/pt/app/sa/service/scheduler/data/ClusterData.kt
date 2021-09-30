@@ -1,15 +1,13 @@
-package pt.app.sa.service.schedule.data
+package pt.app.sa.service.scheduler.data
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 /**
  *
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
- * @since 26/09/2021 12:05
+ * @since 25/09/2021 18:06
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class StoreData(
-    var name: String,
-    var theme: String,
-    var region: String
+data class ClusterData(
+    var name: String
 )

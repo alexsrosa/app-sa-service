@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
-import pt.app.sa.service.controller.dto.*
+import pt.app.sa.service.controller.dto.FiltersData
 import pt.app.sa.service.controller.dto.FiltersEnum.*
+import pt.app.sa.service.controller.dto.OutClusterDto
+import pt.app.sa.service.controller.dto.OutProductDto
+import pt.app.sa.service.controller.dto.OutRegionDto
 import pt.app.sa.service.service.ClusterService
 import pt.app.sa.service.service.ProductService
 import pt.app.sa.service.service.RegionService
-import pt.app.sa.service.service.StoreService
 
 /**
  *
@@ -22,7 +24,7 @@ class FiltersUseCase(
     val clusterService: ClusterService,
     val productService: ProductService,
     val regionService: RegionService,
-    val storeService: StoreService
+    val storesUseCase: StoresUseCase
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(FiltersUseCase::class.java)
@@ -32,14 +34,12 @@ class FiltersUseCase(
         val filters: FiltersData = filtersData ?: FiltersData(emptyList())
         val page = numPage ?: 0
 
-        when (valueOf(filterId.uppercase())) {
-            SEASON, PRODUCT_MODEL, PRODUCT_SIZE, SKU -> return filterByProduct(filters, page)
-            CLUSTER -> return filterByCluster(filters, page)
-            REGION, REGION_TYPE -> return filterByRegion(filters, page)
-            STORE_NAME, STORE_THEME -> return filterByStore(filters, page)
-            else -> logger.info("Filter Not Found")
+        return when (valueOf(filterId.uppercase())) {
+            SEASON, PRODUCT_MODEL, PRODUCT_SIZE, SKU -> filterByProduct(filters, page)
+            CLUSTER -> filterByCluster(filters, page)
+            REGION, REGION_TYPE -> filterByRegion(filters, page)
+            STORE_NAME, STORE_THEME -> storesUseCase.findAllByFilter(filters, page)
         }
-        return Any()
     }
 
     private fun filterByProduct(filtersData: FiltersData, page: Int): List<OutProductDto> {
@@ -58,13 +58,6 @@ class FiltersUseCase(
         val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "name")
         return regionService.findAll(filtersData.filters, pageable).content.map {
             OutRegionDto(it.name, it.type, it.clusters.name)
-        }
-    }
-
-    private fun filterByStore(filtersData: FiltersData, page: Int): List<OutStoreDto> {
-        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "name")
-        return storeService.findAll(filtersData.filters, pageable).content.map {
-            OutStoreDto(it.name, it.theme, it.region.name)
         }
     }
 

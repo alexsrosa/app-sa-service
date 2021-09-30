@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import pt.app.sa.service.schedule.data.StoreData
+import pt.app.sa.service.scheduler.data.StoreData
 import pt.app.sa.service.service.StoreService
-import pt.app.sa.service.utils.LoadByRequestWithPageType
-import pt.app.sa.service.utils.RestTemplateUtils
+import pt.app.sa.service.commons.LoadByRequestWithPageType
+import pt.app.sa.service.commons.RestTemplateUtils
 
 /**
  *
@@ -20,7 +20,7 @@ import pt.app.sa.service.utils.RestTemplateUtils
 class LoadStoresUseCase(
     val storeService: StoreService,
     val restTemplateUtils: RestTemplateUtils<List<StoreData>>
-) : LoadByRequestWithPageType<List<StoreData>> {
+) : LoadByRequestWithPageType<StoreData> {
 
     override val logger: Logger = LoggerFactory.getLogger(LoadStoresUseCase::class.java)
 
@@ -30,8 +30,11 @@ class LoadStoresUseCase(
     @Value("\${externalDataLoad.endpoints.stores}")
     lateinit var endpoint: String
 
-    @Value("\${externalDataLoad.endpoints.stores.errorsAccepted:20}")
+    @Value("\${externalDataLoad.endpoints.stores.errorsAccepted:100}")
     override var errorsAccepted: Int = 0
+
+    override var totalBatch: Int = 100
+    override var processName: String = "Store"
 
     override fun request(page: Int): ResponseEntity<List<StoreData>> {
         return restTemplateUtils.get(
@@ -39,13 +42,8 @@ class LoadStoresUseCase(
             object : ParameterizedTypeReference<List<StoreData>>() {})
     }
 
-    override fun save(list: List<StoreData>) {
-        list.forEach { region ->
-            val saveStore = storeService.save(region)
-            if (saveStore != null) {
-                logger.info("A new store entry has been created. $saveStore")
-            }
-        }
+    override fun saveAll(list: List<StoreData>) {
+        storeService.saveAll(list)
     }
 
     override fun stopExecution(list: List<StoreData>): Boolean {

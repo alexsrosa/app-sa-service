@@ -1,9 +1,6 @@
 package pt.app.sa.service.model
 
-import javax.persistence.Entity
-import javax.persistence.Index
-import javax.persistence.ManyToOne
-import javax.persistence.Table
+import javax.persistence.*
 
 /**
  * Entity that has store information.
@@ -19,7 +16,12 @@ import javax.persistence.Table
 class StoreEntity(
     var name: String,
     var theme: String,
-    @ManyToOne var region: RegionEntity
-) : BaseEntity() {
+    @ManyToOne var region: RegionEntity,
+
+    ) : BaseEntity() {
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "store")
+    val storeProduct = mutableListOf<StoreProductEntity>()
+
     override fun toString(): String = "$name, $theme, $region"
 }

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
 import org.springframework.test.context.ActiveProfiles
 import pt.app.sa.service.repository.ProductRepository
-import pt.app.sa.service.schedule.data.ProductData
+import pt.app.sa.service.scheduler.data.ProductData
 
 /**
  *
@@ -95,5 +95,31 @@ class ProductServiceTest @Autowired constructor(
 
         val findAll = productRepository.findAll()
         Assertions.assertEquals(total, findAll.size)
+    }
+
+    @Test
+    fun `When save all new product and update if necessary Then save all`() {
+
+        val mutableListOf = mutableListOf<ProductData>()
+
+        var i = 1
+        val total = 1000
+        while (i <= total) {
+            val productData = ProductData("season$i", "model", "size", "sku$i", "1000", "description")
+            mutableListOf.add(productData)
+            i++
+        }
+        productService.saveAll(mutableListOf)
+
+        while (i <= total * 2) {
+            val productData = ProductData("season$i", "model", "size", "sku$i", "1000", "description")
+            mutableListOf.add(productData)
+            i++
+        }
+
+        productService.saveAll(mutableListOf)
+
+        val findAll = productRepository.findAll()
+        Assertions.assertEquals(total * 2, findAll.size)
     }
 }

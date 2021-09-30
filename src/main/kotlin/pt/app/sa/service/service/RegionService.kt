@@ -9,7 +9,7 @@ import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.repository.RegionRepository
 import pt.app.sa.service.repository.specification.RegionSpecification
-import pt.app.sa.service.schedule.data.RegionData
+import pt.app.sa.service.scheduler.data.RegionData
 
 /**
  *

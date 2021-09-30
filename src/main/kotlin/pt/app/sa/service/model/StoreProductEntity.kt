@@ -1,9 +1,7 @@
 package pt.app.sa.service.model
 
-import javax.persistence.Entity
-import javax.persistence.Index
-import javax.persistence.ManyToOne
-import javax.persistence.Table
+import java.util.*
+import javax.persistence.*
 
 /**
  * Entity that has store products information.
@@ -14,12 +12,20 @@ import javax.persistence.Table
 @Entity
 @Table(
     name = "store_products",
-    indexes = [Index(name = "index_store_products_unique", columnList = "product, season, store_id", unique = true)]
+    indexes = [
+        Index(name = "index_store_products_unique", columnList = "product, season, store_id", unique = true),
+        Index(name = "index_store_products_unique", columnList = "product, season, store_id", unique = true),
+    ]
 )
 class StoreProductEntity(
     var product: String,
     var season: String,
     @ManyToOne var store: StoreEntity
 ) : BaseEntity() {
+    var hashId: Int = Objects.hash(product, season, store.name)
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "model")
+    val products = mutableListOf<ProductEntity>()
+
     override fun toString(): String = "$product, $season, $store"
 }
