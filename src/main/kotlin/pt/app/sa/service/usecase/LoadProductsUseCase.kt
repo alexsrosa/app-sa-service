@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import pt.app.sa.service.schedule.data.ProductData
+import pt.app.sa.service.scheduler.data.ProductData
 import pt.app.sa.service.service.ProductService
-import pt.app.sa.service.utils.LoadByRequestReceiveFileType
-import pt.app.sa.service.utils.RestTemplateUtils
+import pt.app.sa.service.commons.LoadByRequestReceiveFileType
+import pt.app.sa.service.commons.RestTemplateUtils
 
 /**
  *
@@ -30,8 +30,10 @@ class LoadProductsUseCase(
     @Value("\${externalDataLoad.endpoints.products}")
     lateinit var endpoint: String
 
-    @Value("\${externalDataLoad.endpoints.products.errorsAccepted:10}")
+    @Value("\${externalDataLoad.endpoints.products.errorsAccepted:100}")
     override var errorsAccepted: Int = 0
+
+    override var processName: String = "Product"
 
     override fun request(): ResponseEntity<String> {
         return restTemplateUtils.get("$baseUri$endpoint", object : ParameterizedTypeReference<String>() {})
@@ -64,11 +66,6 @@ class LoadProductsUseCase(
     }
 
     override fun saveAll(list: MutableList<ProductData>) {
-        for (product in list) {
-            val saved = productService.save(product)
-            if (saved != null) {
-                logger.info("The product $saved has been inserted/updated")
-            }
-        }
+        productService.saveAll(list)
     }
 }

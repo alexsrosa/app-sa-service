@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import pt.app.sa.service.exception.RecordAlreadyExistsException
-import pt.app.sa.service.schedule.data.StoreProductData
+import org.springframework.transaction.annotation.Transactional
+import pt.app.sa.service.scheduler.data.StoreProductData
 import pt.app.sa.service.service.StoreProductService
-import pt.app.sa.service.utils.LoadByRequestWithPageType
-import pt.app.sa.service.utils.RestTemplateUtils
+import pt.app.sa.service.commons.LoadByRequestWithPageMultiThredType
+import pt.app.sa.service.commons.RestTemplateUtils
 
 /**
  *
@@ -21,17 +21,22 @@ import pt.app.sa.service.utils.RestTemplateUtils
 class LoadStoreProductsUseCase(
     val storeProductService: StoreProductService,
     val restTemplateUtils: RestTemplateUtils<List<StoreProductData>>
-) : LoadByRequestWithPageType<List<StoreProductData>> {
+) : LoadByRequestWithPageMultiThredType<StoreProductData> {
 
     override val logger: Logger = LoggerFactory.getLogger(LoadStoreProductsUseCase::class.java)
+    override var totalBatch: Int = 3000
+    override var processName: String = "StoreProduct"
 
     @Value("\${externalDataLoad.baseUri}")
     lateinit var baseUri: String
 
-    @Value("\${externalDataLoad.endpoints.storeProducts}")
+    @Value("\${externalDataLoad.endpoints.storeProducts.lastPage}")
+    var lastPage: Int = 0
+
+    @Value("\${externalDataLoad.endpoints.storeProducts.path}")
     lateinit var endpoint: String
 
-    @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:100}")
+    @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:1500}")
     override var errorsAccepted: Int = 0
 
     override fun request(page: Int): ResponseEntity<List<StoreProductData>> {
@@ -40,21 +45,49 @@ class LoadStoreProductsUseCase(
             object : ParameterizedTypeReference<List<StoreProductData>>() {})
     }
 
-    override fun save(list: List<StoreProductData>) {
-        list.forEach { storeProduct ->
-            try {
-                val saveStoreProduct = storeProductService.save(storeProduct)
-                if (saveStoreProduct != null) {
-                    logger.info("A new store products entry has been created. $saveStoreProduct")
-                }
-            } catch (ex: RecordAlreadyExistsException) {
-                logger.debug("A store products $storeProduct already exists")
-            }
-
-        }
+    @Transactional
+    override fun saveAll(list: List<StoreProductData>) {
+        storeProductService.saveAll(list)
     }
 
     override fun stopExecution(list: List<StoreProductData>): Boolean {
         return list.isEmpty()
+    }
+
+    override fun discoverLastPage(): Int {
+        if ((request(lastPage + 1).body?.size ?: 0) == 0) return lastPage
+
+        val nowLastPage = lastPage + 1
+        var execute = true
+        var rangeSearch = 1000
+        var pageSearch = nowLastPage + rangeSearch
+        val maxRetry = 100
+        while (execute) {
+
+            var executeRequest = true
+            var retryCount = 0
+            while (executeRequest) {
+                try {
+                    if ((request(pageSearch).body?.size ?: 0) > 0) pageSearch += rangeSearch
+                    else {
+                        pageSearch -= rangeSearch
+                        rangeSearch /= 2
+                    }
+
+                    if (rangeSearch == 1) execute = false
+
+                    executeRequest = false
+                } catch (ex: Exception) {
+                    retryCount++
+                }
+
+                if (retryCount > maxRetry) {
+                    executeRequest = false
+                    execute = false
+                }
+            }
+        }
+
+        return pageSearch
     }
 }

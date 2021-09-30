@@ -1,10 +1,7 @@
 package pt.app.sa.service.service
 
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
@@ -14,10 +11,7 @@ import pt.app.sa.service.repository.ClusterRepository
 import pt.app.sa.service.repository.RegionRepository
 import pt.app.sa.service.repository.StoreProductRepository
 import pt.app.sa.service.repository.StoreRepository
-import pt.app.sa.service.schedule.data.ClusterData
-import pt.app.sa.service.schedule.data.RegionData
-import pt.app.sa.service.schedule.data.StoreData
-import pt.app.sa.service.schedule.data.StoreProductData
+import pt.app.sa.service.scheduler.data.*
 
 /**
  *
@@ -87,5 +81,31 @@ class StoreProductServiceTest @Autowired constructor(
         val findByNameButExists =
             store1?.let { storeProductService.findByProductAndSeasonAndStore(storeProductData, it) }
         assertNotNull(findByNameButExists)
+    }
+
+    @Test
+    fun `When save all new store product and update if necessary Then save all`() {
+
+        val mutableListOf = mutableListOf<StoreProductData>()
+
+        var i = 1
+        val total = 1000
+        while (i <= total) {
+            val storeProductData = StoreProductData("product$i", "store1", "SA")
+            mutableListOf.add(storeProductData)
+            i++
+        }
+        storeProductService.saveAll(mutableListOf)
+
+        while (i <= total * 2) {
+            val storeProductData = StoreProductData("product$i", "store1", "SA")
+            mutableListOf.add(storeProductData)
+            i++
+        }
+
+        storeProductService.saveAll(mutableListOf)
+
+        val findAll = storeProductService.findAll()
+        assertEquals(total * 2, findAll.size)
     }
 }

@@ -16,5 +16,6 @@ interface ProductRepository :
     JpaSpecificationExecutor<ProductEntity>,
     JpaRepository<ProductEntity, Long> {
 
+    fun findByHashIdIn(ids: Set<Int>): Set<ProductEntity>
     fun findBySeasonAndSku(session: String, sku: String): ProductEntity?
 }

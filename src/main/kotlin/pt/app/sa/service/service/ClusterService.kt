@@ -9,7 +9,7 @@ import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.model.ClusterEntity
 import pt.app.sa.service.repository.ClusterRepository
 import pt.app.sa.service.repository.specification.ClusterSpecification
-import pt.app.sa.service.schedule.data.ClusterData
+import pt.app.sa.service.scheduler.data.ClusterData
 
 /**
  *

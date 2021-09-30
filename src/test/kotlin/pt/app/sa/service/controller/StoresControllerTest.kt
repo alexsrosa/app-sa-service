@@ -10,19 +10,22 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.controller.dto.FiltersData
 import pt.app.sa.service.repository.ClusterRepository
 import pt.app.sa.service.repository.RegionRepository
+import pt.app.sa.service.repository.StoreProductRepository
 import pt.app.sa.service.repository.StoreRepository
 import pt.app.sa.service.scheduler.data.ClusterData
 import pt.app.sa.service.scheduler.data.RegionData
 import pt.app.sa.service.scheduler.data.StoreData
+import pt.app.sa.service.scheduler.data.StoreProductData
 import pt.app.sa.service.service.ClusterService
 import pt.app.sa.service.service.RegionService
+import pt.app.sa.service.service.StoreProductService
 import pt.app.sa.service.service.StoreService
 
 /**
@@ -33,14 +36,16 @@ import pt.app.sa.service.service.StoreService
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class FiltersControllerTest @Autowired constructor(
+class StoresControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val regionService: RegionService,
     val clusterService: ClusterService,
     val storeService: StoreService,
+    val storeProductService: StoreProductService,
     val clusterRepository: ClusterRepository,
     val regionRepository: RegionRepository,
     val storeRepository: StoreRepository,
+    val storeProductRepository: StoreProductRepository
 ) {
 
     val mapper = jacksonObjectMapper()
@@ -55,60 +60,48 @@ class FiltersControllerTest @Autowired constructor(
         storeService.save(StoreData("store1", "theme1", "region1"))
         storeService.save(StoreData("store2", "theme2", "region2"))
         storeService.save(StoreData("store3", "theme3", "region2"))
+        val storeProductData = StoreProductData("product", "store3", "season")
+        val savedOne = storeProductService.save(storeProductData)
     }
 
     @AfterAll
     fun destroy() {
+        storeProductRepository.deleteAll()
         storeRepository.deleteAll()
         regionRepository.deleteAll()
         clusterRepository.deleteAll()
     }
 
     @Test
-    fun `When get filters Then return all available filters`() {
+    fun `When post store with filters for season Then return store filtered`() {
         mockMvc.perform(
-            get("/filters")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-    }
-
-    @Test
-    fun `When get filters cluster Then return cluster filtered`() {
-        mockMvc.perform(
-            post("/filters/CLUSTER")
-                .content(mapper.writeValueAsString(FiltersData(listOf(FilterData("Cluster", listOf("cluster1"))))))
+            MockMvcRequestBuilders.post("/stores")
+                .content(mapper.writeValueAsString(FiltersData(listOf(FilterData("Season", listOf("season"))))))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("\$.[0].name").value("cluster1"))
+            .andExpect(jsonPath("\$.[0].name").value("store3"))
+            .andExpect(jsonPath("\$.[0].theme").value("theme3"))
+            .andExpect(jsonPath("\$.[0].region").value("region2"))
+            .andExpect(jsonPath("$.length()").value(1))
     }
 
     @Test
-    fun `When get filters Region Then return Region filtered`() {
+    fun `When post store with filters for season and region Then return not found store`() {
         mockMvc.perform(
-            post("/filters/REGION")
-                .content(mapper.writeValueAsString(FiltersData(listOf(FilterData("Cluster", listOf("cluster1"))))))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("\$.[0].name").value("region1"))
-            .andExpect(jsonPath("\$.[0].type").value("type1"))
-            .andExpect(jsonPath("\$.[1].name").value("region2"))
-            .andExpect(jsonPath("\$.[1].type").value("type2"))
-
-        mockMvc.perform(
-            post("/filters/REGION")
+            MockMvcRequestBuilders.post("/stores")
                 .content(
                     mapper.writeValueAsString(
                         FiltersData(
                             listOf(
-                                FilterData("Cluster", listOf("cluster2")), FilterData("Region_Type", listOf("type3"))
+                                FilterData(
+                                    "Season", listOf("season")
+                                ),
+                                FilterData(
+                                    "Region", listOf("region3")
+                                )
                             )
                         )
                     )
@@ -117,36 +110,39 @@ class FiltersControllerTest @Autowired constructor(
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("\$.[0].name").value("region3"))
-            .andExpect(jsonPath("\$.[0].type").value("type3"))
+            .andExpect(jsonPath("$.length()").value(0))
     }
 
     @Test
-    fun `When get filters stores Then return stores filtered`() {
+    fun `When post store with filters for season and region Then return store filtered`() {
         mockMvc.perform(
-            post("/filters/STORE_NAME")
-                .content(mapper.writeValueAsString(FiltersData(listOf(FilterData("REGION", listOf("region1"))))))
+            MockMvcRequestBuilders.post("/stores")
+                .content(
+                    mapper.writeValueAsString(
+                        FiltersData(
+                            listOf(
+                                FilterData(
+                                    "Season", listOf("season")
+                                ),
+                                FilterData(
+                                    "Region", listOf("region2")
+                                )
+                            )
+                        )
+                    )
+                )
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("\$.[0].name").value("store1"))
-            .andExpect(jsonPath("\$.[0].theme").value("theme1"))
-            .andExpect(jsonPath("\$.[0].region").value("region1"))
-
-        mockMvc.perform(
-            post("/filters/STORE_NAME")
-                .content(mapper.writeValueAsString(FiltersData(listOf(FilterData("STORE_NAME", listOf("store1"))))))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("\$.[0].name").value("store1"))
-            .andExpect(jsonPath("\$.[0].theme").value("theme1"))
-            .andExpect(jsonPath("\$.[0].region").value("region1"))
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("\$.[0].name").value("store3"))
+            .andExpect(jsonPath("\$.[0].theme").value("theme3"))
+            .andExpect(jsonPath("\$.[0].region").value("region2"))
 
     }
 }

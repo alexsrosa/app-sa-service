@@ -12,8 +12,8 @@ services:
       - HOST_DB=postgres:5432
       - LOG_LEVEL=info
       - CRON_LOAD_SOURCE=0 0 * * * *
-      - BASE_URI=...
-      - API_KEY=...
+      - BASE_URI=http://134.209.29.209:3000
+      - API_KEY=76a325g7g2ahs7h4673aa25s47632h5362a4532642
   postgres:
     image: postgres:13.3-alpine
     environment:

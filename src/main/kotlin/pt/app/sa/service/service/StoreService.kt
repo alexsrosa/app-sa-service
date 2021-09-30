@@ -1,17 +1,19 @@
 package pt.app.sa.service.service
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import pt.app.sa.service.controller.dto.FilterData
-import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.model.StoreEntity
 import pt.app.sa.service.repository.StoreRepository
-import pt.app.sa.service.repository.specification.RegionSpecification
 import pt.app.sa.service.repository.specification.StoreSpecification
-import pt.app.sa.service.schedule.data.StoreData
+import pt.app.sa.service.scheduler.data.StoreData
+import kotlin.streams.toList
 
 /**
  *
@@ -24,6 +26,8 @@ class StoreService(
     val regionService: RegionService,
     val cacheManager: CacheManager
 ) {
+
+    val logger: Logger = LoggerFactory.getLogger(StoreService::class.java)
 
     @Synchronized
     fun save(storeData: StoreData): StoreEntity? {
@@ -44,6 +48,34 @@ class StoreService(
             cacheManager.getCache("storeFindByName")?.evict(saved.name)
             return saved
         }
+    }
+
+    @Transactional()
+    fun saveAll(list: List<StoreData>) {
+        val allStoreDataAssociateBy = list.associateBy { it.name }
+        val listToUpdate = storeRepository.findByNameIn(allStoreDataAssociateBy.keys)
+        val listToUpdateAssociateBy = listToUpdate.associateBy { it.name }
+        val listToInsert = allStoreDataAssociateBy.filter { !listToUpdateAssociateBy.containsKey(it.key) }.values
+        val regionAssociateBy = regionService.findAll().associateBy { it.name }
+
+        if (listToInsert.isNotEmpty()) {
+            val rowWithValidRegion = listToInsert.filter { regionAssociateBy.containsKey(it.region) }
+            storeRepository.saveAll(rowWithValidRegion.parallelStream().map {
+                StoreEntity(it.name, it.theme, regionAssociateBy[it.region]!!)
+            }.toList())
+        }
+
+        if (listToUpdate.isNotEmpty()) {
+            listToUpdate.parallelStream().forEach {
+                val storeData = allStoreDataAssociateBy[it.name]
+                if (storeData != null && regionAssociateBy[storeData.region] != null) {
+                    it.theme = storeData.theme
+                    it.region = regionAssociateBy[storeData.region]!!
+                    storeRepository.save(it)
+                }
+            }
+        }
+        cacheManager.getCache("storeFindByName")?.clear()
     }
 
     @Cacheable(cacheNames = ["storeFindByName"], key = "#name")
