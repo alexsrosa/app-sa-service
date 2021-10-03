@@ -2,6 +2,7 @@ package pt.app.sa.service.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.controller.dto.FiltersData
+import pt.app.sa.service.controller.dto.InStoreDto
 import pt.app.sa.service.repository.ClusterRepository
 import pt.app.sa.service.repository.RegionRepository
 import pt.app.sa.service.repository.StoreProductRepository
@@ -60,8 +62,8 @@ class StoresControllerTest @Autowired constructor(
         storeService.save(StoreData("store1", "theme1", "region1"))
         storeService.save(StoreData("store2", "theme2", "region2"))
         storeService.save(StoreData("store3", "theme3", "region2"))
-        val storeProductData = StoreProductData("product", "store3", "season")
-        val savedOne = storeProductService.save(storeProductData)
+        storeService.save(StoreData("store4", "theme4", "region3"))
+        storeProductService.save(StoreProductData("product", "store3", "season"))
     }
 
     @AfterAll
@@ -144,5 +146,83 @@ class StoresControllerTest @Autowired constructor(
             .andExpect(jsonPath("\$.[0].theme").value("theme3"))
             .andExpect(jsonPath("\$.[0].region").value("region2"))
 
+    }
+
+    @Test
+    fun `When post store with filters for season and region and page 1 Then return any store`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/stores?page=1")
+                .content(
+                    mapper.writeValueAsString(
+                        FiltersData(
+                            listOf(
+                                FilterData(
+                                    "Season", listOf("season")
+                                ),
+                                FilterData(
+                                    "Region", listOf("region2")
+                                )
+                            )
+                        )
+                    )
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.length()").value(0))
+    }
+
+    @Test
+    fun `When patch store to change and name not found Then return bad request`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/stores/xxxx")
+                .content(
+                    mapper.writeValueAsString(
+                        InStoreDto("yyyy")
+                    )
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isBadRequest)
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.message").value("Store xxxx Not Found"))
+    }
+
+    @Test
+    fun `When patch store to change and not pass new name Then return bad Request`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/stores/xxxx")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isBadRequest)
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.message").isNotEmpty)
+    }
+
+    @Test
+    fun `When patch store to change and name found Then return 200 ok`() {
+
+        val storeChangeName = "store4 - Changed"
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/stores/store4")
+                .content(
+                    mapper.writeValueAsString(
+                        InStoreDto(storeChangeName)
+                    )
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+
+        assertEquals(storeChangeName, storeService.findByNameAlias(storeChangeName)?.nameAlias)
     }
 }

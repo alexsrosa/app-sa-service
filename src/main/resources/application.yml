@@ -13,10 +13,10 @@ spring:
     password: ${PASS_DB:S@-UsEr}
     hikari:
       maximumPoolSize: ${HIKARI_MAXIMUM_POOLSIZE:90}
-      leak-detection-threshold: ${HIKARI_LEAK_THRESHOLD:120000}
-      idle-timeout: ${HIKARI_IDLE_TIMEOUT:60000}
+      leak-detection-threshold: ${HIKARI_LEAK_THRESHOLD:240000}
     driver-class-name: org.postgresql.Driver
   jpa:
+    open-in-view: true
     hibernate:
       ddl-auto: create
     show-sql: false
@@ -43,9 +43,9 @@ logging:
 ## [ Properties App Section ]
 ##
 scheduler:
-  activeOnStart: false
+  activeOnStart: true
   loadAndUpdateSourceSchedule:
-    cron: ${CRON_LOAD_SOURCE:-}
+    cron: ${CRON_LOAD_SOURCE:0 0 * * * *}
 
 externalDataLoad:
   baseUri: ${BASE_URI:http://134.209.29.209:3000}

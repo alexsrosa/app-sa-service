@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate
 import java.net.URI
 
 /**
+ * Utility class for using the rest template.
  *
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
  * @since 26/09/2021 17:49

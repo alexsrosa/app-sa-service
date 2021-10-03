@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import pt.app.sa.service.scheduler.data.StoreProductData
 import pt.app.sa.service.service.StoreProductService
-import pt.app.sa.service.commons.LoadByRequestWithPageMultiThredType
+import pt.app.sa.service.commons.LoadByRequestWithPageMultiThreadType
 import pt.app.sa.service.commons.RestTemplateUtils
 
 /**
@@ -21,7 +21,7 @@ import pt.app.sa.service.commons.RestTemplateUtils
 class LoadStoreProductsUseCase(
     val storeProductService: StoreProductService,
     val restTemplateUtils: RestTemplateUtils<List<StoreProductData>>
-) : LoadByRequestWithPageMultiThredType<StoreProductData> {
+) : LoadByRequestWithPageMultiThreadType<StoreProductData> {
 
     override val logger: Logger = LoggerFactory.getLogger(LoadStoreProductsUseCase::class.java)
     override var totalBatch: Int = 3000
@@ -38,6 +38,9 @@ class LoadStoreProductsUseCase(
 
     @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:1500}")
     override var errorsAccepted: Int = 0
+
+    @Value("\${externalDataLoad.endpoints.storeProducts.totalThreads:20}")
+    override var totalThreads: Int = 0
 
     override fun request(page: Int): ResponseEntity<List<StoreProductData>> {
         return restTemplateUtils.get(

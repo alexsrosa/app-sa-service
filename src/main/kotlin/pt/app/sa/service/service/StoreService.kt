@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pt.app.sa.service.controller.dto.FilterData
+import pt.app.sa.service.exception.StoreNotFoundException
 import pt.app.sa.service.model.StoreEntity
 import pt.app.sa.service.repository.StoreRepository
 import pt.app.sa.service.repository.specification.StoreSpecification
@@ -83,6 +84,11 @@ class StoreService(
         return storeRepository.findByName(name)
     }
 
+    @Cacheable(cacheNames = ["storeFindByNameAlias"], key = "#name")
+    fun findByNameAlias(name: String): StoreEntity? {
+        return storeRepository.findByNameAlias(name)
+    }
+
     fun findAll(): List<StoreEntity> {
         return storeRepository.findAll()
     }
@@ -93,5 +99,13 @@ class StoreService(
 
     private fun isChangedSomething(storeEntity: StoreEntity, storeData: StoreData): Boolean {
         return storeEntity.theme == storeData.theme && storeEntity.region.name == storeData.region
+    }
+
+    fun updateNameAlias(storeName: String, nameAlias: String) {
+        val existsStore = findByNameAlias(storeName) ?: throw StoreNotFoundException(storeName)
+
+        existsStore.nameAlias = nameAlias
+        storeRepository.save(existsStore)
+        cacheManager.getCache("storeFindByNameAlias")?.evict(storeName)
     }
 }

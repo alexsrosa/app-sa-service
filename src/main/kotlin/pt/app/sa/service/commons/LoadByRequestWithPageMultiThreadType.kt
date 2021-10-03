@@ -11,12 +11,13 @@ import kotlin.concurrent.thread
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
  * @since 26/09/2021 19:37
  */
-interface LoadByRequestWithPageMultiThredType<T> {
+interface LoadByRequestWithPageMultiThreadType<T> {
 
     val errorsAccepted: Int
     val processName: String
     val logger: Logger
     val totalBatch: Int
+    val totalThreads: Int
 
     fun request(page: Int): ResponseEntity<List<T>>
     fun saveAll(list: List<T>)
@@ -25,7 +26,7 @@ interface LoadByRequestWithPageMultiThredType<T> {
 
     fun load() {
         val discoverLastPage = discoverLastPage()
-        val pageForThread = discoverLastPage / 20
+        val pageForThread = discoverLastPage / totalThreads
 
         var execute = true
         var nextPage = 0

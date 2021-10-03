@@ -17,5 +17,6 @@ interface StoreRepository :
     JpaRepository<StoreEntity, Long> {
 
     fun findByName(name: String): StoreEntity?
+    fun findByNameAlias(name: String): StoreEntity?
     fun findByNameIn(keys: Set<String>): Set<StoreEntity>
 }
