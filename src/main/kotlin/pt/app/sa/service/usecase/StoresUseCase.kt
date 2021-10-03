@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import pt.app.sa.service.controller.dto.FiltersData
+import pt.app.sa.service.controller.dto.InStoreDto
 import pt.app.sa.service.controller.dto.OutStoreDto
 import pt.app.sa.service.service.StoreService
 
@@ -21,10 +22,13 @@ class StoresUseCase(
         val filters: FiltersData = filtersData ?: FiltersData(emptyList())
         val page = numPage ?: 0
 
-        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "name")
+        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "nameAlias")
         return storeService.findAll(filters.filters, pageable).content.map {
-            OutStoreDto(it.name, it.theme, it.region.name)
+            OutStoreDto(it.nameAlias, it.theme, it.region.name)
         }
     }
 
+    fun update(storeName: String, inStoreDto: InStoreDto) {
+        storeService.updateNameAlias(storeName, inStoreDto.name)
+    }
 }

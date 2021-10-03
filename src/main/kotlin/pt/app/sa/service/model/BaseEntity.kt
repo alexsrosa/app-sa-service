@@ -15,7 +15,7 @@ open class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
     var updatedAt: LocalDateTime = LocalDateTime.now()
-    var cratedAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now()
 
     @PreUpdate
     fun save() {

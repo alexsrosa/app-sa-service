@@ -11,14 +11,20 @@ import javax.persistence.*
 @Entity
 @Table(
     name = "stores",
-    indexes = [Index(name = "index_store_name_unique", columnList = "name", unique = true)]
+    indexes = [
+        Index(name = "index_store_name_unique", columnList = "name", unique = true),
+        Index(name = "index_store_name_alias_unique", columnList = "name_alias", unique = true)]
 )
 class StoreEntity(
+    @Column(nullable = false)
     var name: String,
     var theme: String,
-    @ManyToOne var region: RegionEntity,
+    @ManyToOne var region: RegionEntity
 
-    ) : BaseEntity() {
+) : BaseEntity() {
+
+    @Column(name = "name_alias", nullable = false)
+    var nameAlias: String = name
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "store")
     val storeProduct = mutableListOf<StoreProductEntity>()
