@@ -1,0 +1,11 @@
+##############################
+## Build a cache artifact   ##
+FROM gradle:7.2-jdk11-openj9 as builder
+WORKDIR /app
+COPY ./ ./
+RUN gradle clean build --no-daemon
+
+FROM gradle:7.2-jdk11-openj9
+COPY --from=builder /root/.gradle /root/.gradle
+
+##############################

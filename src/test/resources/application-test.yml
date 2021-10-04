@@ -27,7 +27,7 @@ spring:
           provider_class: org.hibernate.cache.NoCacheProvider
     hibernate:
       naming-strateg: org.hibernate.cfg.ImprovedNamingStrategy
-      ddl-auto: create
+      ddl-auto: create-drop
 
 logging:
   level:
@@ -36,7 +36,7 @@ logging:
 ##
 ## [ Properties App Section ]
 ##
-schedule:
+scheduler:
   activeOnStart: false
   loadAndUpdateSourceSchedule:
     cron: "-"

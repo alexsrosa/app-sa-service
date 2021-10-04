@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import pt.app.sa.service.commons.ControlThreadsUtils
 import pt.app.sa.service.commons.TimeUtils
 import pt.app.sa.service.usecase.*
 import java.time.LocalTime
 import javax.annotation.PostConstruct
-import kotlin.concurrent.thread
 
 /**
  *
@@ -39,17 +39,15 @@ class LoadAndUpdateSourceSchedule(
         val startedTime: LocalTime = LocalTime.now()
         logger.info(">> Data load processing started")
 
-        thread(start = true) {
-            loadClustersUseCase.load()
-            loadRegionsUseCase.load()
-            loadStoresUseCase.load()
-            loadStoreProductsUseCase.load()
-        }
+        loadClustersUseCase.load()
+        loadRegionsUseCase.load()
+        loadStoresUseCase.load()
 
-        thread(start = true, name = "loadProductsThread") {
-            loadProductsUseCase.load()
-        }
+        val threadProducts = loadProductsUseCase.load()
+        val threadStoreProducts = loadStoreProductsUseCase.load()
+        threadStoreProducts.add(threadProducts)
 
+        ControlThreadsUtils.returnWhenCloseAllTreadsOnList(threadStoreProducts)
         logger.info("Charge processing ended and took ${TimeUtils.getTotalTime(startedTime)} seconds.")
     }
 }

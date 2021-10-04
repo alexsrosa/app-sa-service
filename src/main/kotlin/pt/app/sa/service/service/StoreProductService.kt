@@ -62,9 +62,9 @@ class StoreProductService(
                     storesAssociateBy[it.store]!!
                 )
             }.toList())
-        }
 
-        cacheManager.getCache("storeProductFindByProductAndSeasonAndStore")?.clear()
+            cacheManager.getCache("storeProductFindByProductAndSeasonAndStore")?.clear()
+        }
     }
 
     @Cacheable(

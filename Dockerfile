@@ -1,6 +1,6 @@
 ##############################
 ## Build a release artifact. ##
-FROM gradle:7.2-jdk11-openj9 as builder
+FROM alexsrosa/gradle-7.2-app-sa-service-cache:latest as builder
 
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src

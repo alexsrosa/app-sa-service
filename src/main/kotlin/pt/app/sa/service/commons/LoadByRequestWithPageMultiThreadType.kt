@@ -24,19 +24,24 @@ interface LoadByRequestWithPageMultiThreadType<T> {
     fun stopExecution(list: List<T>): Boolean
     fun discoverLastPage(): Int
 
-    fun load() {
+    fun load(): MutableList<Thread> {
         val discoverLastPage = discoverLastPage()
         val pageForThread = discoverLastPage / totalThreads
 
         var execute = true
         var nextPage = 0
         var nextPageForThread = pageForThread
+        val listNameThreads = mutableListOf<Thread>()
+
         while (execute) {
             val nextPageThead = nextPage
             val nextPageForThreadThread = nextPageForThread
-            thread(start = true, name = "${nextPageThead}-to-${nextPageForThreadThread}") {
+
+            val thread = thread(start = true, name = "${nextPageThead}-to-${nextPageForThreadThread}") {
                 loadRun(nextPageThead, nextPageForThreadThread)
             }
+            listNameThreads.add(thread)
+
             nextPage = nextPageForThread + 1
             nextPageForThread += pageForThread
 
@@ -44,6 +49,8 @@ interface LoadByRequestWithPageMultiThreadType<T> {
                 execute = false
             }
         }
+
+        return listNameThreads
     }
 
     fun loadRun(pageInit: Int, pageFinish: Int?) {
@@ -84,9 +91,9 @@ interface LoadByRequestWithPageMultiThreadType<T> {
                     execute = false
                 }
 
+                logger.warn("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
                 errorsAcceptedCount++
                 hasError = false
-                logger.warn("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
             } else {
                 if (pageFinish != null && page == pageFinish) execute = false
                 page++

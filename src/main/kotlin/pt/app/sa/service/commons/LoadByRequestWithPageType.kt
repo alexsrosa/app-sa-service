@@ -59,9 +59,9 @@ interface LoadByRequestWithPageType<T> {
                     execute = false
                 }
 
+                logger.info("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
                 errorsAcceptedCount++
                 hasError = false
-                logger.info("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
             } else {
                 page++
             }

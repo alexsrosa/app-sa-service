@@ -39,7 +39,7 @@ class LoadStoreProductsUseCase(
     @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:1500}")
     override var errorsAccepted: Int = 0
 
-    @Value("\${externalDataLoad.endpoints.storeProducts.totalThreads:20}")
+    @Value("\${externalDataLoad.endpoints.storeProducts.totalThreads:10}")
     override var totalThreads: Int = 0
 
     override fun request(page: Int): ResponseEntity<List<StoreProductData>> {

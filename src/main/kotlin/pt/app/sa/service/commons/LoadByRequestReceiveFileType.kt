@@ -3,7 +3,9 @@ package pt.app.sa.service.commons
 import org.slf4j.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.concurrent.thread
 
 /**
  *
@@ -20,7 +22,13 @@ interface LoadByRequestReceiveFileType<T, D> {
     fun convert(file: T): MutableList<D>
     fun saveAll(list: MutableList<D>)
 
-    fun load() {
+    fun load(): Thread{
+        return thread(start = true, name = "${LocalDateTime.now()}-${processName}-Load") {
+            loadWithSingleThread()
+        }
+    }
+
+    fun loadWithSingleThread() {
         logger.info(":::: Started to load $processName ::::")
         val startedTime: LocalTime = LocalTime.now()
         var execute = true
@@ -53,9 +61,9 @@ interface LoadByRequestReceiveFileType<T, D> {
                     execute = false
                 }
 
+                logger.info("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
                 errorsAcceptedCount++
                 hasError = false
-                logger.info("Attempts [$errorsAcceptedCount] of [$errorsAccepted] in total. Detail error: $messageErr")
             }
         }
 

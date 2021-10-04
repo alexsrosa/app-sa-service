@@ -191,12 +191,16 @@ docker-compose stop
 docker-compose down
 ````
 
+**Note:** To improve the speed of the image build, a cached image was made with a pre-build of the project dependencies, 
+this significantly decreased the build time. The cache image can be found in _/config/docker/DockerGradleCache_
+
 ## Future improvements
 
 - Refactoring code for working with gradle modules for better encapsulation and to ensure correct usage of dependencies;
 - Creation of control tables for better management of the load schedule;
 - Separation of load schedules in order to guarantee processing and find problems more easily.
 - Use better threads resources of Kotlin language to gain performance in the load schedule.
+- Use some database migration tool like Liquibase. 
 
 
 Enjoy ;)
