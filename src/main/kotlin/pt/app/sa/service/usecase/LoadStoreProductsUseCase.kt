@@ -24,7 +24,6 @@ class LoadStoreProductsUseCase(
 ) : LoadByRequestWithPageMultiThreadType<StoreProductData> {
 
     override val logger: Logger = LoggerFactory.getLogger(LoadStoreProductsUseCase::class.java)
-    override var totalBatch: Int = 3000
     override var processName: String = "StoreProduct"
 
     @Value("\${externalDataLoad.baseUri}")
@@ -33,10 +32,13 @@ class LoadStoreProductsUseCase(
     @Value("\${externalDataLoad.endpoints.storeProducts.lastPage}")
     var lastPage: Int = 0
 
+    @Value("\${externalDataLoad.endpoints.storeProducts.totalBatch:1000}")
+    override var totalBatch: Int = 0
+
     @Value("\${externalDataLoad.endpoints.storeProducts.path}")
     lateinit var endpoint: String
 
-    @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:1500}")
+    @Value("\${externalDataLoad.endpoints.storeProducts.errorsAccepted:1000}")
     override var errorsAccepted: Int = 0
 
     @Value("\${externalDataLoad.endpoints.storeProducts.totalThreads:10}")
@@ -48,7 +50,6 @@ class LoadStoreProductsUseCase(
             object : ParameterizedTypeReference<List<StoreProductData>>() {})
     }
 
-    @Transactional
     override fun saveAll(list: List<StoreProductData>) {
         storeProductService.saveAll(list)
     }

@@ -44,7 +44,6 @@ class StoreProductService(
         return saved
     }
 
-    @Transactional
     fun saveAll(list: List<StoreProductData>) {
         val allStoreProductDataAssociateBy = list.associateBy { Objects.hash(it.product, it.season, it.store) }
         val listToUpdate = storeProductRepository.findByHashIdIn(allStoreProductDataAssociateBy.keys)

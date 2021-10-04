@@ -145,7 +145,6 @@ class StoresControllerTest @Autowired constructor(
             .andExpect(jsonPath("\$.[0].name").value("store3"))
             .andExpect(jsonPath("\$.[0].theme").value("theme3"))
             .andExpect(jsonPath("\$.[0].region").value("region2"))
-
     }
 
     @Test
@@ -207,7 +206,7 @@ class StoresControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `When patch store to change and name found Then return 200 ok`() {
+    fun `When patch store to change and name found Then return 200 ok and find before`() {
 
         val storeChangeName = "store4 - Changed"
         mockMvc.perform(
@@ -224,5 +223,27 @@ class StoresControllerTest @Autowired constructor(
             .andDo(MockMvcResultHandlers.print())
 
         assertEquals(storeChangeName, storeService.findByNameAlias(storeChangeName)?.nameAlias)
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/stores?page=0")
+                .content(
+                    mapper.writeValueAsString(
+                        FiltersData(
+                            listOf(
+                                FilterData(
+                                    "STORE_NAME", listOf("store4 - Changed")
+                                )
+                            )
+                        )
+                    )
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("\$.[0].name").value("store4 - Changed"))
     }
 }

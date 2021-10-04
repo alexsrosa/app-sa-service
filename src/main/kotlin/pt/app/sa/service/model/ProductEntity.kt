@@ -1,6 +1,7 @@
 package pt.app.sa.service.model
 
 import java.util.*
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Index
 import javax.persistence.Table
@@ -14,7 +15,10 @@ import javax.persistence.Table
 @Entity
 @Table(
     name = "products",
-    indexes = [Index(name = "index_products_season_sku_unique", columnList = "season, sku", unique = true)]
+    indexes = [
+        Index(name = "index_products_season_sku_unique", columnList = "season, sku", unique = true),
+        Index(name = "index_products_hash_id", columnList = "hash_id", unique = true)
+    ]
 )
 class ProductEntity(
     var season: String,
@@ -24,6 +28,7 @@ class ProductEntity(
     var ean: Long,
     var description: String
 ) : BaseEntity() {
+    @Column(name = "hash_id")
     var hashId: Int = Objects.hash(season, sku)
     override fun toString(): String = "$season, $model, $size, $sku, $ean, $description"
 }

@@ -14,7 +14,7 @@ import javax.persistence.*
     name = "store_products",
     indexes = [
         Index(name = "index_store_products_unique", columnList = "product, season, store_id", unique = true),
-        Index(name = "index_store_products_unique", columnList = "product, season, store_id", unique = true),
+        Index(name = "index_store_products_hash_id", columnList = "hash_id")
     ]
 )
 class StoreProductEntity(
@@ -22,6 +22,7 @@ class StoreProductEntity(
     var season: String,
     @ManyToOne var store: StoreEntity
 ) : BaseEntity() {
+    @Column(name = "hash_id")
     var hashId: Int = Objects.hash(product, season, store.name)
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "model")

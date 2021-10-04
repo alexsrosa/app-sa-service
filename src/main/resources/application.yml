@@ -25,7 +25,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
-          batch_size: 9000
+          batch_size: 2000
           order_inserts: true
           order_updates: true
         generate_statistics: false
@@ -56,6 +56,9 @@ externalDataLoad:
     stores: /stores
     storeProducts:
       path: /stores/products
+      errorsAccepted: 1200
+      totalThreads: 10
+      totalBatch: 2000
       lastPage: 18076
     products: /product-data.csv
 

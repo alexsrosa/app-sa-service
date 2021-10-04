@@ -53,7 +53,7 @@ object StoreSpecification {
 
                     FiltersEnum.STORE_NAME -> {
                         predicates.add(
-                            cb.and(root.get(StoreEntity_.name).`in`(it.values))
+                            cb.and(root.get(StoreEntity_.nameAlias).`in`(it.values))
                         )
                     }
 

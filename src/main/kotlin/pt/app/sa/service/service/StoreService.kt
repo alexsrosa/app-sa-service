@@ -38,6 +38,7 @@ class StoreService(
         if (storeExists == null) {
             val saved = storeRepository.save(StoreEntity(storeData.name, storeData.theme, region))
             cacheManager.getCache("storeFindByName")?.evict(saved.name)
+            cacheManager.getCache("storeFindAll")?.clear()
             return saved
         } else {
             if (isChangedSomething(storeExists, storeData)) {
@@ -47,11 +48,12 @@ class StoreService(
             storeExists.region = region
             val saved = storeRepository.save(storeExists)
             cacheManager.getCache("storeFindByName")?.evict(saved.name)
+            cacheManager.getCache("storeFindAll")?.clear()
             return saved
         }
     }
 
-    @Transactional()
+    @Transactional
     fun saveAll(list: List<StoreData>) {
         val allStoreDataAssociateBy = list.associateBy { it.name }
         val listToUpdate = storeRepository.findByNameIn(allStoreDataAssociateBy.keys)
@@ -77,6 +79,7 @@ class StoreService(
             }
         }
         cacheManager.getCache("storeFindByName")?.clear()
+        cacheManager.getCache("storeFindAll")?.clear()
     }
 
     @Cacheable(cacheNames = ["storeFindByName"], key = "#name")
@@ -89,6 +92,7 @@ class StoreService(
         return storeRepository.findByNameAlias(name)
     }
 
+    @Cacheable(cacheNames = ["storeFindAll"])
     fun findAll(): List<StoreEntity> {
         return storeRepository.findAll()
     }
@@ -97,15 +101,15 @@ class StoreService(
         return storeRepository.findAll(StoreSpecification.filter(filters), pageable)
     }
 
-    private fun isChangedSomething(storeEntity: StoreEntity, storeData: StoreData): Boolean {
-        return storeEntity.theme == storeData.theme && storeEntity.region.name == storeData.region
-    }
-
     fun updateNameAlias(storeName: String, nameAlias: String) {
         val existsStore = findByNameAlias(storeName) ?: throw StoreNotFoundException(storeName)
 
         existsStore.nameAlias = nameAlias
         storeRepository.save(existsStore)
         cacheManager.getCache("storeFindByNameAlias")?.evict(storeName)
+    }
+
+    private fun isChangedSomething(storeEntity: StoreEntity, storeData: StoreData): Boolean {
+        return storeEntity.theme == storeData.theme && storeEntity.region.name == storeData.region
     }
 }

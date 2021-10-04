@@ -16,11 +16,12 @@ spring:
     test-on-borrow: true
     testWhileIdle: true
     validationQuery: SELECT 1
-
   jpa:
     open-in-view: true
+    show-sql: false
     properties:
       hibernate:
+        format_sql: true
         enable_lazy_load_no_trans: true
         cache:
           use_query_cache: false

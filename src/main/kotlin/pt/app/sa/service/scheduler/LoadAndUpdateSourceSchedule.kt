@@ -10,6 +10,7 @@ import pt.app.sa.service.commons.TimeUtils
 import pt.app.sa.service.usecase.*
 import java.time.LocalTime
 import javax.annotation.PostConstruct
+import javax.annotation.Priority
 
 /**
  *
