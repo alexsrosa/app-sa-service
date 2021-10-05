@@ -1,8 +1,6 @@
 package pt.app.sa.service.model
 
-import javax.persistence.Entity
-import javax.persistence.Index
-import javax.persistence.Table
+import javax.persistence.*
 
 /**
  * Entity that has cluster information.
@@ -18,5 +16,9 @@ import javax.persistence.Table
 class ClusterEntity(
     var name: String
 ) : BaseEntity() {
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "clusters")
+    val regions = mutableListOf<RegionEntity>()
+
     override fun toString(): String = name
 }

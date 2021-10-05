@@ -93,21 +93,21 @@ Lists all the available fields for which users can use to filter for Stores
 Lists all possible remaining values that a user can select of a given filter, after using other filters.
 
 **Request example:**
-`http://localhost:8080/filters/STORE_NAME?page=0`
+`http://localhost:8080/filters/REGION?page=0`
 ````json
 {
   "filters": [
     {
-      "id": "REGION",
-      "values": [ "North EU", "South EU"]
+      "id": "Cluster",
+      "values": [ "Europe", "Asia"]
     },
     {
-      "id": "STORE_NAME",
-      "values": [ "A Wednesday store", "A Sunday store"]
+      "id": "Region_Type",
+      "values": [ "XY"]
     },
     {
-      "id": "STORE_THEME",
-      "values": [ "What an a shaky Store!"]
+      "id": "Season",
+      "values": ["S17"]
     }
   ]
 }
@@ -115,11 +115,8 @@ Lists all possible remaining values that a user can select of a given filter, af
 **Response example:**
 ````json
 [
-  {
-    "name": "A Sunday store",
-    "theme": "What an a shaky Store!",
-    "region": "North EU"
-  }
+  "North EU",
+  "South EU"
 ]
 ````
 

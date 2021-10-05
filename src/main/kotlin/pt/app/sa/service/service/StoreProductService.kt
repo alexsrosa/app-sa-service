@@ -2,12 +2,17 @@ package pt.app.sa.service.service
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import pt.app.sa.service.controller.dto.FilterData
 import pt.app.sa.service.exception.RecordAlreadyExistsException
 import pt.app.sa.service.model.StoreEntity
 import pt.app.sa.service.model.StoreProductEntity
 import pt.app.sa.service.repository.StoreProductRepository
+import pt.app.sa.service.repository.specification.ProductSpecification
+import pt.app.sa.service.repository.specification.StoreProductSpecification
 import pt.app.sa.service.scheduler.data.StoreProductData
 import java.util.*
 import kotlin.streams.toList
@@ -83,5 +88,9 @@ class StoreProductService(
 
     fun findAll(): List<StoreProductEntity> {
         return storeProductRepository.findAll()
+    }
+
+    fun findAll(filters: List<FilterData>, pageable: PageRequest): Page<StoreProductEntity> {
+        return storeProductRepository.findAll(StoreProductSpecification.filter(filters), pageable)
     }
 }

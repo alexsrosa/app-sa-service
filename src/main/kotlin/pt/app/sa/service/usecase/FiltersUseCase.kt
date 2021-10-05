@@ -2,17 +2,18 @@ package pt.app.sa.service.usecase
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import pt.app.sa.service.controller.dto.FiltersData
 import pt.app.sa.service.controller.dto.FiltersEnum.*
-import pt.app.sa.service.controller.dto.OutClusterDto
-import pt.app.sa.service.controller.dto.OutProductDto
-import pt.app.sa.service.controller.dto.OutRegionDto
+import pt.app.sa.service.model.ProductEntity
+import pt.app.sa.service.model.RegionEntity
 import pt.app.sa.service.service.ClusterService
 import pt.app.sa.service.service.ProductService
 import pt.app.sa.service.service.RegionService
+import pt.app.sa.service.service.StoreProductService
 
 /**
  *
@@ -22,6 +23,7 @@ import pt.app.sa.service.service.RegionService
 @Component
 class FiltersUseCase(
     val clusterService: ClusterService,
+    val storeProductService: StoreProductService,
     val productService: ProductService,
     val regionService: RegionService,
     val storesUseCase: StoresUseCase
@@ -35,30 +37,36 @@ class FiltersUseCase(
         val page = numPage ?: 0
 
         return when (valueOf(filterId.uppercase())) {
-            SEASON, PRODUCT_MODEL, PRODUCT_SIZE, SKU -> filterByProduct(filters, page)
+            SEASON -> filterBySeason(filters, page)
             CLUSTER -> filterByCluster(filters, page)
-            REGION, REGION_TYPE -> filterByRegion(filters, page)
-            STORE_NAME, STORE_THEME -> storesUseCase.findAllByFilter(filters, page)
+            REGION -> filterByRegion(filters, page).content.map { it.name }.toSet()
+            REGION_TYPE -> filterByRegion(filters, page).content.map { it.type }.toSet()
+            PRODUCT_MODEL -> filterByProduct(filters, page).content.map { it.model }.toSet()
+            PRODUCT_SIZE -> filterByProduct(filters, page, "size").content.map { it.size }.toSet()
+            SKU -> filterByProduct(filters, page, "sku").content.map { it.sku }.toSet()
+            STORE_NAME -> storesUseCase.findAllByFilter(filters, page).map { it.name }.toSet()
+            STORE_THEME -> storesUseCase.findAllByFilter(filters, page, "theme").map { it.theme }.toSet()
         }
     }
 
-    private fun filterByProduct(filtersData: FiltersData, page: Int): List<OutProductDto> {
-        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "ean")
-        return productService.findAll(filtersData.filters, pageable).content.map {
-            OutProductDto(it.season, it.model, it.size, it.sku, it.ean, it.description)
-        }
+    private fun filterBySeason(filtersData: FiltersData, page: Int): Set<String> {
+        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "season")
+        return storeProductService.findAll(filtersData.filters, pageable).content.map { it.season }.toSet()
     }
 
-    private fun filterByCluster(filtersData: FiltersData, page: Int): List<OutClusterDto> {
+    private fun filterByCluster(filtersData: FiltersData, page: Int): Set<String> {
         val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "name")
-        return clusterService.findAll(filtersData.filters, pageable).content.map { OutClusterDto(it.name) }
+        return clusterService.findAll(filtersData.filters, pageable).content.map { it.name }.toSet()
     }
 
-    private fun filterByRegion(filtersData: FiltersData, page: Int): List<OutRegionDto> {
+    private fun filterByRegion(filtersData: FiltersData, page: Int): Page<RegionEntity> {
         val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "name")
-        return regionService.findAll(filtersData.filters, pageable).content.map {
-            OutRegionDto(it.name, it.type, it.clusters.name)
-        }
+        return regionService.findAll(filtersData.filters, pageable)
+    }
+
+    private fun filterByProduct(filtersData: FiltersData, page: Int, orderBy: String = "model"): Page<ProductEntity> {
+        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, orderBy)
+        return productService.findAll(filtersData.filters, pageable)
     }
 
 }

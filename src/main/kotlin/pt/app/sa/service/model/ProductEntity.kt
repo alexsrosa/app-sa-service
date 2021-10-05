@@ -1,10 +1,7 @@
 package pt.app.sa.service.model
 
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Index
-import javax.persistence.Table
+import javax.persistence.*
 
 /**
  * Entity that has products information.
@@ -30,5 +27,6 @@ class ProductEntity(
 ) : BaseEntity() {
     @Column(name = "hash_id")
     var hashId: Int = Objects.hash(season, sku)
+
     override fun toString(): String = "$season, $model, $size, $sku, $ean, $description"
 }

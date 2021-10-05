@@ -19,11 +19,20 @@ object ProductSpecification {
     private val logger: Logger = LoggerFactory.getLogger(ProductSpecification::class.java)
 
     fun filter(filters: List<FilterData>): Specification<ProductEntity> {
-        return Specification { root, _, cb ->
+        return Specification { root, query, cb ->
             val predicates = mutableListOf<Predicate>()
 
             filters.forEach lit@{
+
+                if (it.values.isEmpty()) return@lit
+
                 when (FiltersEnum.valueOfWithTry(it.id) ?: return@lit) {
+
+                    FiltersEnum.SEASON -> {
+                        predicates.add(
+                            cb.and(root.get(ProductEntity_.season).`in`(it.values))
+                        )
+                    }
 
                     FiltersEnum.PRODUCT_MODEL -> {
                         predicates.add(
@@ -39,7 +48,7 @@ object ProductSpecification {
 
                     FiltersEnum.SKU -> {
                         predicates.add(
-                            cb.and(root.get(ProductEntity_.sku).`in`(it.values))
+                            cb.or(cb.like(root.get(ProductEntity_.sku), "%${it.values[0]}%"))
                         )
                     }
 
@@ -47,6 +56,7 @@ object ProductSpecification {
                 }
             }
 
+            query.distinct(true)
             cb.and(*predicates.toTypedArray())
         }
     }

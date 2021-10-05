@@ -18,11 +18,11 @@ class StoresUseCase(
     val storeService: StoreService
 ) {
 
-    fun findAllByFilter(filtersData: FiltersData?, numPage: Int?): List<OutStoreDto> {
+    fun findAllByFilter(filtersData: FiltersData?, numPage: Int?, orderBy: String = "nameAlias"): List<OutStoreDto> {
         val filters: FiltersData = filtersData ?: FiltersData(emptyList())
         val page = numPage ?: 0
 
-        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, "nameAlias")
+        val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, orderBy)
         return storeService.findAll(filters.filters, pageable).content.map {
             OutStoreDto(it.nameAlias, it.theme, it.region.name)
         }

@@ -19,5 +19,9 @@ class RegionEntity(
     var type: String,
     @ManyToOne var clusters: ClusterEntity
 ) : BaseEntity() {
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "region")
+    val stores = mutableListOf<StoreEntity>()
+
     override fun toString(): String = "$name, $type, $clusters"
 }

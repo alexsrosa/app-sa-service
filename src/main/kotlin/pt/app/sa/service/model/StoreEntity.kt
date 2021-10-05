@@ -16,8 +16,7 @@ import javax.persistence.*
         Index(name = "index_store_name_alias_unique", columnList = "name_alias", unique = true)]
 )
 class StoreEntity(
-    @Column(nullable = false)
-    var name: String,
+    @Column(nullable = false) var name: String,
     var theme: String,
     @ManyToOne var region: RegionEntity
 

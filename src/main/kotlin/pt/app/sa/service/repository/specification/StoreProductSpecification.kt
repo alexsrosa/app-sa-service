@@ -12,35 +12,33 @@ import javax.persistence.criteria.Predicate
 /**
  *
  * @author <a href="mailto:alexsros@gmail.com">Alex Rosa</a>
- * @since 28/09/2021 15:13
+ * @since 05/10/2021 15:36
  */
-object StoreSpecification {
+object StoreProductSpecification {
 
-    private val logger: Logger = LoggerFactory.getLogger(StoreSpecification::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(StoreProductSpecification::class.java)
 
-    fun filter(filters: List<FilterData>): Specification<StoreEntity> {
+    fun filter(filters: List<FilterData>): Specification<StoreProductEntity> {
         return Specification { root, query, cb ->
             val predicates = mutableListOf<Predicate>()
 
             filters.forEach lit@{
 
-                if(it.values.isEmpty()) return@lit
+                if (it.values.isEmpty()) return@lit
 
                 when (FiltersEnum.valueOfWithTry(it.id) ?: return@lit) {
+
                     FiltersEnum.SEASON -> {
                         predicates.add(
-                            cb.`in`(
-                                root.join<StoreEntity, StoreProductEntity>(StoreEntity_.STORE_PRODUCT)
-                                    .get<Any>(StoreProductEntity_.SEASON)
-                            )
-                                .value(it.values)
+                            cb.and(root.get(StoreProductEntity_.season).`in`(it.values))
                         )
                     }
 
                     FiltersEnum.CLUSTER -> {
                         predicates.add(
                             cb.`in`(
-                                root.join(StoreEntity_.region, JoinType.INNER)
+                                root.join(StoreProductEntity_.store, JoinType.INNER)
+                                    .join(StoreEntity_.region, JoinType.INNER)
                                     .join(RegionEntity_.clusters, JoinType.INNER)
                                     .get<Any>(ClusterEntity_.NAME)
                             )
@@ -51,7 +49,8 @@ object StoreSpecification {
                     FiltersEnum.REGION -> {
                         predicates.add(
                             cb.`in`(
-                                root.join<StoreEntity, RegionEntity>(StoreEntity_.REGION)
+                                root.join(StoreProductEntity_.store, JoinType.INNER)
+                                    .join(StoreEntity_.region, JoinType.INNER)
                                     .get<Any>(RegionEntity_.NAME)
                             )
                                 .value(it.values)
@@ -61,7 +60,9 @@ object StoreSpecification {
                     FiltersEnum.REGION_TYPE -> {
                         predicates.add(
                             cb.`in`(
-                                root.join<StoreEntity, RegionEntity>(StoreEntity_.REGION).get<Any>(RegionEntity_.TYPE)
+                                root.join(StoreProductEntity_.store, JoinType.INNER)
+                                    .join(StoreEntity_.region, JoinType.INNER)
+                                    .get<Any>(RegionEntity_.TYPE)
                             )
                                 .value(it.values)
                         )
@@ -69,27 +70,31 @@ object StoreSpecification {
 
                     FiltersEnum.PRODUCT_MODEL -> {
                         predicates.add(
-                            cb.`in`(
-                                root.join<StoreEntity, StoreProductEntity>(StoreEntity_.STORE_PRODUCT)
-                                    .get<Any>(StoreProductEntity_.PRODUCT)
-                            )
-                                .value(it.values)
+                            cb.and(root.get(StoreProductEntity_.product).`in`(it.values))
                         )
                     }
 
                     FiltersEnum.STORE_NAME -> {
                         predicates.add(
-                            cb.and(root.get(StoreEntity_.nameAlias).`in`(it.values))
+                            cb.`in`(
+                                root.join(StoreProductEntity_.store, JoinType.INNER)
+                                    .get<Any>(StoreEntity_.NAME)
+                            )
+                                .value(it.values)
                         )
                     }
 
                     FiltersEnum.STORE_THEME -> {
                         predicates.add(
-                            cb.and(root.get(StoreEntity_.theme).`in`(it.values))
+                            cb.`in`(
+                                root.join(StoreProductEntity_.store, JoinType.INNER)
+                                    .get<Any>(StoreEntity_.THEME)
+                            )
+                                .value(it.values)
                         )
                     }
 
-                    else -> logger.info("Filter for Store Not Found")
+                    else -> logger.info("Filter for Product Not Found")
                 }
             }
 
