@@ -11,6 +11,7 @@ import pt.app.sa.service.usecase.*
 import java.time.LocalTime
 import javax.annotation.PostConstruct
 import javax.annotation.Priority
+import kotlin.concurrent.thread
 
 /**
  *
@@ -32,7 +33,11 @@ class LoadAndUpdateSourceSchedule(
 
     @PostConstruct
     fun onStartup() {
-        if (activeOnStart) loadAndUpdateSourceSchedule()
+        if (activeOnStart){
+            thread(name = "loadAndUpdateSource") {
+                loadAndUpdateSourceSchedule()
+            }
+        }
     }
 
     @Scheduled(cron = "\${scheduler.loadAndUpdateSourceSchedule.cron}")

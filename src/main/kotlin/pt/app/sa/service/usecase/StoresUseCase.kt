@@ -24,7 +24,7 @@ class StoresUseCase(
 
         val pageable = PageRequest.of(page, 100, Sort.Direction.ASC, orderBy)
         return storeService.findAll(filters.filters, pageable).content.map {
-            OutStoreDto(it.nameAlias, it.theme, it.region.name)
+            OutStoreDto(it.nameAlias, it.theme, it.region.name, it.region.clusters.name)
         }
     }
 

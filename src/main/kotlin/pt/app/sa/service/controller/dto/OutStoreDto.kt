@@ -11,5 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 data class OutStoreDto(
     var name: String,
     var theme: String,
-    var region: String
+    var region: String,
+    var cluster: String
 )
