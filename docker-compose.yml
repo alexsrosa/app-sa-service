@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app-sa-service:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      - PROFILES=default
+      - HOST_DB=postgres:5432
+      - LOG_LEVEL=info
+      - CRON_LOAD_SOURCE=0 0 * * * *
+      - BASE_URI=http://134.209.29.209:3000
+      - API_KEY=76a325g7g2ahs7h4673aa25s47632h5362a4532642
+  postgres:
+    image: postgres:13.3-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - USER_DB=app_sa_user
+      - PASS_DB=S@-UsEr
+      - NAME_DB=app_sa
+      - HIKARI_MAXIMUM_POOLSIZE=10
+      - HIKARI_LEAK_THRESHOLD=10000
+      - HIKARI_IDLE_TIMEOUT=10000
+    volumes:
+      - ./conf/db:/docker-entrypoint-initdb.d/
+    ports:
+      - 15432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+

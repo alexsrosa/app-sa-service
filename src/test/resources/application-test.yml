@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+##
+## [ Database Configuration Section ]
+##
+spring:
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:dtr_mem;AUTO_RECONNECT=TRUE
+    username: sa
+    password:
+    platform: h2
+    max-wait: 10000
+    test-on-borrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  jpa:
+    open-in-view: true
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        enable_lazy_load_no_trans: true
+        cache:
+          use_query_cache: false
+          provider_class: org.hibernate.cache.NoCacheProvider
+    hibernate:
+      naming-strateg: org.hibernate.cfg.ImprovedNamingStrategy
+      ddl-auto: create-drop
+
+logging:
+  level:
+    root: ${LOG_LEVEL:info}
+
+##
+## [ Properties App Section ]
+##
+scheduler:
+  activeOnStart: false
+  loadAndUpdateSourceSchedule:
+    cron: "-"
+
+externalDataLoad:
+  baseUri: ...
+  apiKey: ...
+  endpoints:
+    clusters: /clusters
+    regions: /regions
+    stores: /stores
+    storeProducts: /stores/products
+    products: /product-data.csv
+

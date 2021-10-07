@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+
+##
+## [ Database Configuration Section ]
+##
+spring:
+
+  datasource:
+    url: jdbc:postgresql://${HOST_DB:localhost:15432}/${NAME_DB:app_sa}?autoReconnect=true
+    username: ${USER_DB:app_sa_user}
+    password: ${PASS_DB:S@-UsEr}
+    hikari:
+      maximumPoolSize: ${HIKARI_MAXIMUM_POOLSIZE:90}
+      leak-detection-threshold: ${HIKARI_LEAK_THRESHOLD:240000}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 2000
+          order_inserts: true
+          order_updates: true
+        generate_statistics: false
+  task:
+    execution:
+      pool:
+        max-size: 20
+        queue-capacity: 1000
+
+logging:
+  level:
+    root: ${LOG_LEVEL:info}
+
+##
+## [ Properties App Section ]
+##
+scheduler:
+  activeOnStart: true
+  loadAndUpdateSourceSchedule:
+    cron: ${CRON_LOAD_SOURCE:0 0 * * * *}
+
+externalDataLoad:
+  baseUri: ${BASE_URI:http://134.209.29.209:3000}
+  apiKey: ${API_KEY:76a325g7g2ahs7h4673aa25s47632h5362a4532642}
+  endpoints:
+    clusters: /clusters
+    regions: /regions
+    stores: /stores
+    storeProducts:
+      path: /stores/products
+      errorsAccepted: 1200
+      totalThreads: 10
+      totalBatch: 2000
+      lastPage: 18076
+    products: /product-data.csv
+
